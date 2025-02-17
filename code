@@ -1,0 +1,221 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report
+import joblib
+
+data_path =   # Update this to your actual file path
+data = pd.read_excel(data_path)
+
+def classify_disease(row):
+    if row['IRP'] > 15:
+        return 'Achalasia/EGJ OO'
+    elif (row['DL'] < 4.5) and (row['DL'] >= 20):  # Assuming percentage is given and needs to be calculated
+        return 'Diffuse eso. spasm'
+    elif 100 <= row['DCI'] <= 450:  # Adjust based on actual data format
+        return 'Ineffective eso. motility'
+    elif row['DCI'] < 100:
+        return 'Absent contractility'
+    elif row['DCI'] > 8000:
+        return 'Hypercontractile'
+    else:
+        return 'Unknown'
+
+# Apply the classification function to each row
+data['Disease Type'] = data.apply(classify_disease, axis=1)
+
+from sklearn.model_selection import train_test_split
+
+X = data[['IRP', 'DL', 'DCI']]  # Use appropriate feature columns
+y = data['Disease Type'] 
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+from sklearn.ensemble import RandomForestClassifier
+
+rf_model = RandomForestClassifier(random_state=42)
+rf_model.fit(X_train, y_train)
+
+from sklearn.metrics import classification_report, accuracy_score
+
+predictions = rf_model.predict(X_test)
+print(classification_report(y_test, predictions))
+print("Accuracy:", accuracy_score(y_test, predictions))
+
+import joblib
+
+model_filename = 'my_esophageal_motility_disorder_model.pkl'
+joblib.dump(rf_model, model_filename)
+
+# For Jupyter Notebook, use the Jupyter interface to download the saved model file
+
+import pandas as pd
+feature_importances = pd.Series(rf_model.feature_importances_, index=X.columns)
+print("Feature Importances:\n", feature_importances.sort_values(ascending=False))
+
+from sklearn.model_selection import GridSearchCV
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [None, 10, 20, 30],
+    # Add other parameters here
+}
+grid_search = GridSearchCV(rf_model, param_grid, cv=5, scoring='accuracy')
+grid_search.fit(X_train, y_train)
+print("Best Parameters:", grid_search.best_params_)
+
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(rf_model, X, y, cv=5, scoring='accuracy')
+print("Cross-Validation Accuracy Scores:", scores)
+print("Mean CV Accuracy:", scores.mean())
+
+final_model = grid_search.best_estimator_  # Assuming grid search was used
+joblib.dump(final_model, 'final_esophageal_model.pkl')
+
+
+
+# Example step that might have been missed
+data['Condition'] = ['Normal' if irp < 15 else 'Abnormal' for irp in data['IRP']]
+
+# Adjusted based on actual column names in your DataFrame
+print(data[['IRP', 'DL', 'DCI', 'Condition', 'Disease Type']].head(100))
+
+def classify_disease(row):
+    # Achalasia/EGJ OO category
+    if row['IRP'] > 15:
+        return 'Achalasia/EGJ OO'
+    
+    # Adding categories based on DL and DCI with specific ranges
+    elif row['DL'] < 4.5:
+        return 'Diffuse eso. spasm'
+    elif 100 <= row['DCI'] <= 450:
+        return 'Ineffective eso. motility'
+    elif row['DCI'] < 100:
+        return 'Absent contractility'
+    elif row['DCI'] > 8000:
+        return 'Hypercontractile'
+    
+    # For values that don't fit the above categories but are still within expected measurement ranges
+    # Adjust these ranges based on clinical input or additional data from your reference material
+    elif row['IRP'] <= 15:
+        return 'Normal esophageal pressure'
+    else:
+        # As a last resort, classify as 'Other' or another descriptive term based on your criteria
+        return 'Other - Review Required'
+
+# Apply the classification function
+data['Disease Type'] = data.apply(classify_disease, axis=1)
+
+
+# Example step that might have been missed
+data['Condition'] = ['Normal' if irp < 15 else 'Abnormal' for irp in data['IRP']]
+
+# Adjusted based on actual column names in your DataFrame
+print(data[['IRP', 'DL', 'DCI', 'Condition', 'Disease Type']].head(100))
+
+def classify_disease(row):
+    # Example classification logic
+    solid_cutoff_IRP = 15
+    water_perfused_cutoff_IRP = 13
+    
+    if row['IRP'] > solid_cutoff_IRP:
+        solid_diagnosis = 'Achalasia/EGJ OO'
+    else:
+        solid_diagnosis = 'Normal'
+    
+    if row['IRP'] > water_perfused_cutoff_IRP:
+        water_perfused_diagnosis = 'Achalasia/EGJ OO'
+    else:
+        water_perfused_diagnosis = 'Normal'
+    
+    return pd.Series([solid_diagnosis, water_perfused_diagnosis])
+
+# Make sure `data` is already defined and loaded with your dataset
+data[['Solid_State_Diagnosis', 'Water_Perfused_Diagnosis']] = data.apply(classify_disease, axis=1)
+
+print(data.head(100))
+
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+
+# Assuming 'data' is your DataFrame and has been loaded and preprocessed
+X = data[['IRP', 'DL', 'DCI']]  # Features
+y = data['Disease Type']        # Target
+
+# Split the data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train the model
+rf_model = RandomForestClassifier(random_state=42)
+rf_model.fit(X_train, y_train)
+
+# Feature Importance
+feature_importances = pd.DataFrame(rf_model.feature_importances_,
+                                   index = X_train.columns,
+                                   columns=['importance']).sort_values('importance', ascending=False)
+print(feature_importances)
+
+pip install shap
+pip install flask
+
+import shap
+
+# Explain the model's predictions using SHAP
+explainer = shap.TreeExplainer(rf_model)
+shap_values = explainer.shap_values(X_train)
+
+# Plot summary plot using SHAP values (this summarizes the effects of all features)
+shap.summary_plot(shap_values, X_train, plot_type="bar")
+
+print(np.array(shap_values).shape)
+
+# For binary classification, SHAP values can be directly used
+shap.summary_plot(shap_values[1], X_train, plot_type="bar")
+import numpy as np
+
+print(np.array(shap_values).shape)
+import numpy as np
+
+# Print the shapes to understand the mismatch
+print("Shape of X_train:", X_train.shape)
+print("Shape of SHAP values:", np.array(shap_values).shape)
+
+import numpy as np
+
+print("Shape of X_train:", X_train.shape)
+print("Shape of SHAP values for class index 1:", np.array(shap_values[1]).shape)
+
+print(type(shap_values))
+print(shap_values.shape)  # If this doesn't work, try exploring attributes like .values or similar
+# Access SHAP values and feature names
+shap_values_array = shap_values.values  # This should give you the raw SHAP values array
+feature_names = shap_values.feature_names  # This should list the feature names
+
+# Check the shape of the SHAP values array
+print("Shape of SHAP values array:", shap_values_array.shape)
+
+# Example visualization for the first class (adjust index as needed)
+shap.summary_plot(shap_values_array[:, :, 0], X_train, feature_names=feature_names, plot_type="bar")
+# Try visualizing without specifying 'bar' to see if it handles defaults better
+shap.summary_plot(shap_values_array[:, :, 0], X_train, feature_names=feature_names)
+
+# Example visualization for the first class (adjust index as needed)
+shap.summary_plot(shap_values_array[:, :, 0], X_train, feature_names=feature_names, plot_type="bar")
+ 
+
+ 
+
+
+
+ 
+
+
+
+
