@@ -1,7 +1,7 @@
 
 # Esophageal Motility Disorder Classification
 
-## Project Overview
+# Project Overview
 This project focuses on the classification of esophageal motility disorders using Machine Learning (ML). The model is trained using Random Forest Classifier to predict different disorders based on clinical measurements:
 
 Integrated Relaxation Pressure (IRP)
